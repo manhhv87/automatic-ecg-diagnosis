@@ -1,3 +1,4 @@
+import tensorflow
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.callbacks import (ModelCheckpoint, TensorBoard, ReduceLROnPlateau,
                                         CSVLogger, EarlyStopping)
@@ -41,7 +42,7 @@ if __name__ == "__main__":
                                                          args.batch_size, args.val_split)
 
     # If you are continuing an interrupted section, uncomment line bellow:
-    #   model = keras.models.load_model(PATH_TO_PREV_MODEL, compile=False)
+    # model = tensorflow.keras.models.load_model('backup_model_last.hdf5', compile=False)
     model = get_model(train_seq.n_classes)
     model.compile(loss=loss, optimizer=opt)
 
