@@ -1,3 +1,4 @@
+import tensorflow as tf
 from tensorflow.keras.layers import (
     Input, Conv1D, MaxPooling1D, Dropout, BatchNormalization, Activation, Add, Flatten, Dense)
 from tensorflow.keras.models import Model
@@ -53,7 +54,7 @@ class ResidualUnit(object):
 
         # Deal with down_sampling
         if down_sample > 1:
-            y = MaxPooling1D(down_sample, strides=down_sample, padding='same')(y)
+            y = tf.keras.layers.MaxPooling1D(pool_size=down_sample, strides=down_sample, padding='same')(y)
         elif down_sample == 1:
             y = y
         else:
@@ -63,14 +64,14 @@ class ResidualUnit(object):
         if n_filters_in != self.n_filters_out:
             # This is one of the two alternatives presented in ResNet paper
             # Other option is to just fill the matrix with zeros.
-            y = Conv1D(self.n_filters_out, 1, padding='same', use_bias=False,
-                       kernel_initializer=self.kernel_initializer)(y)
+            y = tf.keras.layers.Conv1D(filters=self.n_filters_out, kernel_size=1, padding='same',
+                                       use_bias=False, kernel_initializer=self.kernel_initializer)(y)
         return y
 
     def _batch_norm_plus_activation(self, x):
         if self.post_activation_bn:
-            x = Activation(self.activation_function)(x)
-            x = BatchNormalization(center=False, scale=False)(x)
+            x = tf.keras.layers.Activation(activation=self.activation_function)(x)
+            x = tf.keras.layers.BatchNormalization(center=False, scale=False)(x)
         else:
             x = BatchNormalization()(x)
             x = Activation(self.activation_function)(x)
@@ -118,24 +119,24 @@ class ResidualUnit(object):
 def get_model(n_classes, last_layer='sigmoid'):
     kernel_size = 16
     kernel_initializer = 'he_normal'
-    signal = Input(shape=(4096, 12), dtype=np.float32, name='signal')
-    x = signal
+    inputs = Input(shape=(4096, 12), dtype=np.float32, name='signal')
+    x = inputs
     x = Conv1D(64, kernel_size, padding='same', use_bias=False,
                kernel_initializer=kernel_initializer)(x)
     x = BatchNormalization()(x)
     x = Activation('relu')(x)
-    x, y = ResidualUnit(1024, 128, kernel_size=kernel_size,
+    x, y = ResidualUnit(n_samples_out=1024, n_filters_out=128, kernel_size=kernel_size,
                         kernel_initializer=kernel_initializer)([x, x])
-    x, y = ResidualUnit(256, 196, kernel_size=kernel_size,
+    x, y = ResidualUnit(n_samples_out=256, n_filters_out=196, kernel_size=kernel_size,
                         kernel_initializer=kernel_initializer)([x, y])
-    x, y = ResidualUnit(64, 256, kernel_size=kernel_size,
+    x, y = ResidualUnit(n_samples_out=64, n_filters_out=256, kernel_size=kernel_size,
                         kernel_initializer=kernel_initializer)([x, y])
-    x, _ = ResidualUnit(16, 320, kernel_size=kernel_size,
+    x, _ = ResidualUnit(n_samples_out=16, n_filters_out=320, kernel_size=kernel_size,
                         kernel_initializer=kernel_initializer)([x, y])
     x = Flatten()(x)
-    diagn = Dense(n_classes, activation=last_layer,
-                  kernel_initializer=kernel_initializer)(x)
-    model = Model(signal, diagn)
+    outputs = Dense(n_classes, activation=last_layer,
+                    kernel_initializer=kernel_initializer)(x)
+    model = Model(inputs, outputs)
     return model
 
 
