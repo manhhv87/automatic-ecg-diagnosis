@@ -3,9 +3,11 @@ import tensorflow as tf
 
 from datasets import ECGSequence
 from utils import ecg_feature_extractor
-from densenet1d import _DenseBlock, _TransitionBlock
+
+# from densenet1d import _DenseBlock, _TransitionBlock
 
 if __name__ == "__main__":
+    # Get data and train
     parser = argparse.ArgumentParser(description='Train neural network.')
 
     parser.add_argument('--path_to_hdf5', type=str,
@@ -27,6 +29,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # Optimization settings
+    loss = 'binary_crossentropy'
+    opt = tf.keras.optimizers.Adam(args.lr)
     callbacks = [tf.keras.callbacks.ReduceLROnPlateau(monitor='val_loss',
                                                       factor=0.1,
                                                       patience=7,
@@ -48,24 +52,25 @@ if __name__ == "__main__":
     x = tf.keras.layers.GlobalMaxPooling1D()(backbone_model.output)
     x = tf.keras.layers.Dense(units=train_seq.n_classes, activation='sigmoid', kernel_initializer='he_normal')(x)
     model = tf.keras.models.Model(inputs=backbone_model.input, outputs=x)
-    model.compile(loss='binary_crossentropy', optimizer=tf.keras.optimizers.Adam(args.lr))
+    model.compile(loss=loss, optimizer=opt)
 
     # Create log
-    callbacks += [tf.keras.callbacks.TensorBoard(log_dir='./logs', write_graph=False),
+    callbacks += [tf.keras.callbacks.TensorBoard(log_dir='/content/drive/MyDrive/ECG12Dataset/logs', write_graph=False),
                   tf.keras.callbacks.CSVLogger('training.log',
                                                append=False)]  # Change append to true if continuing training
 
     # Save the BEST and LAST model
-    callbacks += [tf.keras.callbacks.ModelCheckpoint('./backup_model_last.hdf5'),
-                  tf.keras.callbacks.ModelCheckpoint('./backup_model_best.hdf5', save_best_only=True)]
+    callbacks += [tf.keras.callbacks.ModelCheckpoint('/content/drive/MyDrive/ECG12Dataset/backup_model_last.hdf5'),
+                  tf.keras.callbacks.ModelCheckpoint('/content/drive/MyDrive/ECG12Dataset/backup_model_best.hdf5',
+                                                     save_best_only=True)]
 
     # Train neural network
     history = model.fit(train_seq,
                         epochs=args.epochs,
-                        initial_epoch=0,  # If you are continuing an interrupted section change here
+                        initial_epoch=0,  # If you are continuing a interrupted section change here
                         callbacks=callbacks,
                         validation_data=valid_seq,
                         verbose=1)
 
     # Save final result
-    model.save("./final_model.hdf5")
+    model.save("/content/drive/MyDrive/ECG12Dataset/final_model.hdf5")
