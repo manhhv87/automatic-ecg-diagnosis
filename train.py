@@ -57,7 +57,7 @@ if __name__ == "__main__":
                           step_size=config.STEP_SIZE * train_size // args.batch_size)
 
     callbacks = [tf.keras.callbacks.EarlyStopping(patience=9,
-                                                  min_delta=0.001,
+                                                  min_delta=0.00001,
                                                   verbose=1),
                  cycle_rate]
 
