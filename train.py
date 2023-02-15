@@ -29,8 +29,6 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # Optimization settings
-    loss = 'binary_crossentropy'
-    opt = tf.keras.optimizers.Adam(args.lr)
     callbacks = [tf.keras.callbacks.ReduceLROnPlateau(monitor='val_loss',
                                                       factor=0.1,
                                                       patience=7,
@@ -52,7 +50,7 @@ if __name__ == "__main__":
     x = tf.keras.layers.GlobalMaxPooling1D()(backbone_model.output)
     x = tf.keras.layers.Dense(units=train_seq.n_classes, activation='sigmoid', kernel_initializer='he_normal')(x)
     model = tf.keras.models.Model(inputs=backbone_model.input, outputs=x)
-    model.compile(loss=loss, optimizer=opt)
+    model.compile(loss='binary_crossentropy', optimizer=tf.keras.optimizers.Adam(args.lr))
 
     # Create log
     callbacks += [tf.keras.callbacks.TensorBoard(log_dir='/content/drive/MyDrive/ECG12Dataset/logs', write_graph=False),
