@@ -20,7 +20,7 @@ if __name__ == "__main__":
                              'is used for validation')
     parser.add_argument('--dataset_name', type=str, default='tracings',
                         help='name of the hdf5 dataset containing tracings')
-    parser.add_argument('--epochs', type=int, default=70,
+    parser.add_argument('--epochs', type=int, default=100,
                         help='maximum number of epochs')
     parser.add_argument('--batch_size', type=int, default=32,
                         help='batch size')
