@@ -65,7 +65,7 @@ if __name__ == "__main__":
     # Train neural network
     history = model.fit(train_seq,
                         epochs=args.epochs,
-                        initial_epoch=0,  # If you are continuing a interrupted section change here
+                        initial_epoch=0,  # If you are continuing an interrupted section change here
                         callbacks=callbacks,
                         validation_data=valid_seq,
                         verbose=1)
