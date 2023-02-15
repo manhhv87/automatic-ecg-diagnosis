@@ -33,7 +33,8 @@ if __name__ == "__main__":
 
     # Creating training and validation sets
     train_seq, valid_seq, train_size = ECGSequence.get_train_and_val(args.path_to_hdf5, args.dataset_name,
-                                                                     args.path_to_csv, args.batch_size, args.val_split)
+                                                                     args.path_to_csv, args.batch_size,
+                                                                     args.val_split)
 
     # Creating model
     # If you are continuing an interrupted section, uncomment line bellow:
@@ -61,7 +62,8 @@ if __name__ == "__main__":
                  cycle_rate]
 
     # Create log
-    callbacks += [tf.keras.callbacks.TensorBoard(log_dir='/content/drive/MyDrive/ECG12Dataset/logs', write_graph=False),
+    callbacks += [tf.keras.callbacks.TensorBoard(log_dir='/content/drive/MyDrive/ECG12Dataset/logs',
+                                                 write_graph=False),
                   tf.keras.callbacks.CSVLogger('training.log',
                                                append=False)]  # Change append to true if continuing training
 
