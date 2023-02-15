@@ -50,16 +50,16 @@ class _DenseBlock(tf.keras.layers.Layer):
 
         super().build(input_shape)
 
-    def get_config(self):
-        config = super().get_config().copy()
-        config.update({
-            'growth_rate': self.growth_rate,
-            'kernel_size': self.kernel_size,
-            'bottleneck': self.bottleneck,
-            'dropout_rate': self.dropout_rate,
-            'listLayers': self.listLayers
-        })
-        return config
+    # def get_config(self):
+    #     config = super().get_config().copy()
+    #     config.update({
+    #         'growth_rate': self.growth_rate,
+    #         'kernel_size': self.kernel_size,
+    #         'bottleneck': self.bottleneck,
+    #         'dropout_rate': self.dropout_rate,
+    #         'listLayers': self.listLayers
+    #     })
+    #     return config
 
     def call(self, x, **kwargs):
         y = x
@@ -95,13 +95,13 @@ class _TransitionBlock(tf.keras.layers.Layer):
 
         super().build(input_shape)
 
-    def get_config(self):
-        config = super().get_config().copy()
-        config.update({
-            'nb_channels': self.nb_channels,
-            'dropout_rate': self.dropout_rate
-        })
-        return config
+    # def get_config(self):
+    #     config = super().get_config().copy()
+    #     config.update({
+    #         'nb_channels': self.nb_channels,
+    #         'dropout_rate': self.dropout_rate
+    #     })
+    #     return config
 
     def call(self, x, **kwargs):
         x = self.bn(x)
