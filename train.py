@@ -38,7 +38,7 @@ if __name__ == "__main__":
 
     # Creating model
     # If you are continuing an interrupted section, uncomment line bellow:
-    # model = tf.keras.models.load_model('backup_model_last.hdf5',
+    # model = tf.keras.models.load_model('/content/drive/MyDrive/ECG12Dataset/backup_model_last.hdf5',
     #                                    custom_objects={'_DenseBlock': _DenseBlock,
     #                                                    '_TransitionBlock': _TransitionBlock},
     #                                    compile=False)
