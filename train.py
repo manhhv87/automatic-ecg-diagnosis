@@ -6,7 +6,6 @@ from utils import ecg_feature_extractor
 from densenet1d import _DenseBlock, _TransitionBlock
 
 if __name__ == "__main__":
-    # Get data and train
     parser = argparse.ArgumentParser(description='Train neural network.')
 
     parser.add_argument('--path_to_hdf5', type=str,
@@ -28,8 +27,6 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # Optimization settings
-    loss = 'binary_crossentropy'
-    opt = tf.keras.optimizers.Adam(args.lr)
     callbacks = [tf.keras.callbacks.ReduceLROnPlateau(monitor='val_loss',
                                                       factor=0.1,
                                                       patience=7,
@@ -41,9 +38,9 @@ if __name__ == "__main__":
                                                          args.batch_size, args.val_split)
 
     # If you are continuing an interrupted section, uncomment line bellow:
-    # model = tf.keras.models.load_model('backup_model_last.hdf5', compile=False)
-    # model = tf.keras.models.load_model('backup_model_last.hdf5', custom_objects={'_DenseBlock': _DenseBlock,
-    #                                                                              '_TransitionBlock': _TransitionBlock},
+    # model = tf.keras.models.load_model('backup_model_last.hdf5',
+    #                                    custom_objects={'_DenseBlock': _DenseBlock,
+    #                                                    '_TransitionBlock': _TransitionBlock},
     #                                    compile=False)
 
     inputs = tf.keras.layers.Input(shape=train_seq[0][0].shape[1:], dtype=train_seq[0][0].dtype)
@@ -51,7 +48,7 @@ if __name__ == "__main__":
     x = tf.keras.layers.GlobalMaxPooling1D()(backbone_model.output)
     x = tf.keras.layers.Dense(units=train_seq.n_classes, activation='sigmoid', kernel_initializer='he_normal')(x)
     model = tf.keras.models.Model(inputs=backbone_model.input, outputs=x)
-    model.compile(loss=loss, optimizer=opt)
+    model.compile(loss='binary_crossentropy', optimizer=tf.keras.optimizers.Adam(args.lr))
 
     # Create log
     callbacks += [tf.keras.callbacks.TensorBoard(log_dir='./logs', write_graph=False),
@@ -65,7 +62,7 @@ if __name__ == "__main__":
     # Train neural network
     history = model.fit(train_seq,
                         epochs=args.epochs,
-                        initial_epoch=0,  # If you are continuing a interrupted section change here
+                        initial_epoch=0,  # If you are continuing an interrupted section change here
                         callbacks=callbacks,
                         validation_data=valid_seq,
                         verbose=1)
