@@ -1,10 +1,9 @@
 import numpy as np
 import warnings
 import argparse
+import tensorflow as tf
 
 warnings.filterwarnings("ignore")
-from tensorflow.keras.models import load_model
-from tensorflow.keras.optimizers import Adam
 from datasets import ECGSequence
 
 if __name__ == '__main__':
@@ -28,8 +27,8 @@ if __name__ == '__main__':
     seq = ECGSequence(args.path_to_hdf5, args.dataset_name, batch_size=args.batch_size)
 
     # Import model
-    model = load_model(args.path_to_model, compile=False)
-    model.compile(loss='binary_crossentropy', optimizer=Adam())
+    model = tf.keras.models.load_model(args.path_to_model, compile=False)
+    model.compile(loss='binary_crossentropy', optimizer=tf.keras.optimizers.Adam())
     y_score = model.predict(seq, verbose=1)
 
     # Generate dataframe

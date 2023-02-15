@@ -1,9 +1,8 @@
-import tensorflow as tf
-from tensorflow.keras.callbacks import (ModelCheckpoint, TensorBoard, ReduceLROnPlateau,
-                                        CSVLogger, EarlyStopping)
-from model import get_model
 import argparse
+import tensorflow as tf
+
 from datasets import ECGSequence
+from utils import ecg_feature_extractor
 
 if __name__ == "__main__":
     # Get data and train
@@ -41,14 +40,19 @@ if __name__ == "__main__":
                                                          args.batch_size, args.val_split)
 
     # If you are continuing an interrupted section, uncomment line bellow:
-    # model = tensorflow.keras.models.load_model('backup_model_last.hdf5', compile=False)
-    model = get_model(train_seq.n_classes)
+    # model = tf.keras.models.load_model('backup_model_last.hdf5', compile=False)
+
+    inputs = tf.keras.layers.Input(shape=train_seq[0][0].shape[1:], dtype=train_seq[0][0].dtype)
+    backbone_model = ecg_feature_extractor(input_layer=inputs)
+    x = tf.keras.layers.GlobalMaxPooling1D()(backbone_model.output)
+    x = tf.keras.layers.Dense(units=train_seq.n_classes, activation='sigmoid', kernel_initializer='he_normal')(x)
+    model = tf.keras.models.Model(inputs=backbone_model.input, outputs=x)
+
     model.compile(loss=loss, optimizer=opt)
 
     # Create log
     callbacks += [tf.keras.callbacks.TensorBoard(log_dir='./logs', write_graph=False),
-                  tf.keras.callbacks.CSVLogger('training.log',
-                                               append=False)]  # Change append to true if continuing training
+                  tf.keras.callbacks.CSVLogger('training.log', append=False)]  # Change append to true if continuing training
 
     # Save the BEST and LAST model
     callbacks += [tf.keras.callbacks.ModelCheckpoint('./backup_model_last.hdf5'),

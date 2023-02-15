@@ -1,11 +1,11 @@
 import h5py
 import math
+import tensorflow as tf
 import pandas as pd
-from tensorflow.keras.utils import Sequence
 import numpy as np
 
 
-class ECGSequence(Sequence):
+class ECGSequence(tf.keras.utils.Sequence):
     # https://stackoverflow.com/questions/12179271/meaning-of-classmethod-and-staticmethod-for-beginner
     #
     # @classmethod means: when this method is called, we pass the class as the first argument
@@ -18,8 +18,8 @@ class ECGSequence(Sequence):
     # instance of that class (this is useful when your method does not use the instance).
     @classmethod
     def get_train_and_val(cls, path_to_hdf5, hdf5_dset, path_to_csv, batch_size=8, val_split=0.02):
-        data = pd.read_csv(path_to_csv, usecols=["1dAVb","RBBB","LBBB","SB","ST","AF","trace_file"])
-        data.set_index("trace_file", inplace=True)        
+        data = pd.read_csv(path_to_csv, usecols=["1dAVb", "RBBB", "LBBB", "SB", "ST", "AF", "trace_file"])
+        data.set_index("trace_file", inplace=True)
         data = data.loc[path_to_hdf5.split("/")[3]].values
 
         # n_samples = len(pd.read_csv(path_to_csv))
@@ -36,8 +36,8 @@ class ECGSequence(Sequence):
         else:
             # self.y = pd.read_csv(path_to_csv).values    # returning all data of .csv file
             # self.y = pd.read_csv(path_to_csv, usecols=["1dAVb","RBBB","LBBB","SB","ST","AF"]).values
-            self.y = pd.read_csv(path_to_csv, usecols=["1dAVb","RBBB","LBBB","SB","ST","AF","trace_file"])
-            self.y.set_index("trace_file", inplace=True)                    
+            self.y = pd.read_csv(path_to_csv, usecols=["1dAVb", "RBBB", "LBBB", "SB", "ST", "AF", "trace_file"])
+            self.y.set_index("trace_file", inplace=True)
             self.y = self.y.loc[path_to_hdf5.split("/")[3]].values
 
         # Get tracings

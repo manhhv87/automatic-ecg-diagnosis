@@ -1,7 +1,4 @@
 import tensorflow as tf
-from tensorflow.keras.layers import (
-    Input, Conv1D, MaxPooling1D, Dropout, BatchNormalization, Activation, Add, Flatten, Dense)
-from tensorflow.keras.models import Model
 import numpy as np
 
 
@@ -73,8 +70,8 @@ class ResidualUnit(object):
             x = tf.keras.layers.Activation(activation=self.activation_function)(x)
             x = tf.keras.layers.BatchNormalization(center=False, scale=False)(x)
         else:
-            x = BatchNormalization()(x)
-            x = Activation(self.activation_function)(x)
+            x = tf.keras.layers.BatchNormalization()(x)
+            x = tf.keras.layers.Activation(self.activation_function)(x)
         return x
 
     def __call__(self, inputs):
@@ -92,25 +89,25 @@ class ResidualUnit(object):
         x = self._batch_norm_plus_activation(x)
 
         if self.dropout_rate > 0:
-            x = Dropout(self.dropout_rate)(x)
+            x = tf.keras.layers.Dropout(self.dropout_rate)(x)
 
         # 2nd layer
-        x = Conv1D(self.n_filters_out, self.kernel_size, strides=down_sample, padding='same', use_bias=False,
-                   kernel_initializer=self.kernel_initializer)(x)
+        x = tf.keras.layers.Conv1D(self.n_filters_out, self.kernel_size, strides=down_sample, padding='same',
+                                   use_bias=False, kernel_initializer=self.kernel_initializer)(x)
 
         if self.preactivation:
-            x = Add()([x, y])  # Sum skip connection and main connection
+            x = tf.keras.layers.Add()([x, y])  # Sum skip connection and main connection
             y = x
             x = self._batch_norm_plus_activation(x)
             if self.dropout_rate > 0:
-                x = Dropout(self.dropout_rate)(x)
+                x = tf.keras.layers.Dropout(self.dropout_rate)(x)
         else:
-            x = BatchNormalization()(x)
-            x = Add()([x, y])  # Sum skip connection and main connection
-            x = Activation(self.activation_function)(x)
+            x = tf.keras.layers.BatchNormalization()(x)
+            x = tf.keras.layers.Add()([x, y])  # Sum skip connection and main connection
+            x = tf.keras.layers.Activation(self.activation_function)(x)
 
             if self.dropout_rate > 0:
-                x = Dropout(self.dropout_rate)(x)
+                x = tf.keras.layers.Dropout(self.dropout_rate)(x)
 
             y = x
         return [x, y]
@@ -119,12 +116,12 @@ class ResidualUnit(object):
 def get_model(n_classes, last_layer='sigmoid'):
     kernel_size = 16
     kernel_initializer = 'he_normal'
-    inputs = Input(shape=(4096, 12), dtype=np.float32, name='signal')
+    inputs = tf.keras.layers.Input(shape=(4096, 12), dtype=np.float32, name='signal')
     x = inputs
-    x = Conv1D(64, kernel_size, padding='same', use_bias=False,
-               kernel_initializer=kernel_initializer)(x)
-    x = BatchNormalization()(x)
-    x = Activation('relu')(x)
+    x = tf.keras.layers.Conv1D(64, kernel_size, padding='same', use_bias=False,
+                               kernel_initializer=kernel_initializer)(x)
+    x = tf.keras.layers.BatchNormalization()(x)
+    x = tf.keras.layers.Activation('relu')(x)
     x, y = ResidualUnit(n_samples_out=1024, n_filters_out=128, kernel_size=kernel_size,
                         kernel_initializer=kernel_initializer)([x, x])
     x, y = ResidualUnit(n_samples_out=256, n_filters_out=196, kernel_size=kernel_size,
@@ -133,10 +130,9 @@ def get_model(n_classes, last_layer='sigmoid'):
                         kernel_initializer=kernel_initializer)([x, y])
     x, _ = ResidualUnit(n_samples_out=16, n_filters_out=320, kernel_size=kernel_size,
                         kernel_initializer=kernel_initializer)([x, y])
-    x = Flatten()(x)
-    outputs = Dense(n_classes, activation=last_layer,
-                    kernel_initializer=kernel_initializer)(x)
-    model = Model(inputs, outputs)
+    x = tf.keras.layers.Flatten()(x)
+    outputs = tf.keras.layers.Dense(n_classes, activation=last_layer, kernel_initializer=kernel_initializer)(x)
+    model = tf.keras.models.Model(inputs, outputs)
     return model
 
 
