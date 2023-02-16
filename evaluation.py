@@ -80,7 +80,8 @@ scores_percentiles_list, scores_resampled_list = compute_score_bootstraped(y_tru
                                                                            y_cardio=y_cardio,
                                                                            y_emerg=y_emerg,
                                                                            y_student=y_student,
-                                                                           diagnosis=diagnosis)
+                                                                           diagnosis=diagnosis,
+                                                                           predictor_names=predictor_names)
 
 # %% Print box plot (Supplementary Figure 1)
 plot_box(scores_resampled_list=scores_resampled_list, predictor_names=predictor_names,

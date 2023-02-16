@@ -205,7 +205,7 @@ def plot_confusion_matrix(y_true, nclasses, diagnosis, y_neuralnet, y_cardio, y_
 
 # %% Compute scores and bootstraped version of these scores
 def compute_score_bootstraped(y_true, nclasses, score_fun, percentiles, bootstrap_nsamples,
-                              y_neuralnet, y_cardio, y_emerg, y_student, diagnosis):
+                              y_neuralnet, y_cardio, y_emerg, y_student, diagnosis, predictor_names):
     scores_resampled_list = []
     scores_percentiles_list = []
 
@@ -246,12 +246,12 @@ def compute_score_bootstraped(y_true, nclasses, score_fun, percentiles, bootstra
         # Append
         scores_percentiles_list.append(scores_percentiles_df)
 
-        # Concatenate dataframes
-        scores_percentiles_all_df = pd.concat(scores_percentiles_list, axis=1, keys=predictor_names)
+    # Concatenate dataframes
+    scores_percentiles_all_df = pd.concat(scores_percentiles_list, axis=1, keys=predictor_names)
 
-        # Change multiindex levels
-        scores_percentiles_all_df = scores_percentiles_all_df.reorder_levels([1, 0, 2], axis=1)
-        scores_percentiles_all_df = scores_percentiles_all_df.reindex(level=0, columns=score_fun.keys())
+    # Change multiindex levels
+    scores_percentiles_all_df = scores_percentiles_all_df.reorder_levels([1, 0, 2], axis=1)
+    scores_percentiles_all_df = scores_percentiles_all_df.reindex(level=0, columns=score_fun.keys())
 
     return scores_percentiles_list, scores_resampled_list
 
@@ -463,7 +463,7 @@ def compute_score_bootstraped_splits(y_true, y_score_best, score_fun, bootstrap_
         # Append
         scores_percentiles_list.append(scores_percentiles_df)
 
-        return scores_resampled_list
+    return scores_resampled_list
 
 
 # %% Print box plot on alternative splits (Supplementary Figure 2 (a))
