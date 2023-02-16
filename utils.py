@@ -208,8 +208,8 @@ def plot_confusion_matrix(y_true, nclasses, diagnosis, y_neuralnet, y_cardio, y_
     confusion_matrices = confusion_matrices.unstack()
     confusion_matrices = confusion_matrices['n']
 
-    confusion_matrices.to_excel("./outputs/tables/confusion matrices.xlsx", float_format='%.3f')
-    confusion_matrices.to_csv("./outputs/tables/confusion matrices.csv", float_format='%.3f')
+    confusion_matrices.to_excel("./outputs/tables/confusion_matrices.xlsx", float_format='%.3f')
+    confusion_matrices.to_csv("./outputs/tables/confusion_matrices.csv", float_format='%.3f')
 
 
 # %% Compute scores and bootstraped version of these scores
