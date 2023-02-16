@@ -8,18 +8,20 @@ from itertools import combinations
 from sklearn.metrics import (confusion_matrix, precision_recall_curve, average_precision_score)
 
 
-# %% Auxiliary functions
 def get_scores(y_true, y_pred, score_fun):
     nclasses = np.shape(y_true)[1]
     scores = []
+
     for name, fun in score_fun.items():
         scores += [[fun(y_true[:, k], y_pred[:, k]) for k in range(nclasses)]]
+
     return np.array(scores).T
 
 
 def specificity_score(y_true, y_pred):
     m = confusion_matrix(y_true, y_pred, labels=[0, 1])
     spc = m[0, 0] * 1.0 / (m[0, 0] + m[0, 1])
+
     return spc
 
 
@@ -30,6 +32,7 @@ def get_optimal_precision_recall(y_true, y_score):
     opt_precision = []
     opt_recall = []
     opt_threshold = []
+
     for k in range(n):
         # Get precision-recall curve
         precision, recall, threshold = precision_recall_curve(y_true[:, k], y_score[:, k])
@@ -43,6 +46,7 @@ def get_optimal_precision_recall(y_true, y_score):
         opt_recall.append(recall[index])
         t = threshold[index - 1] if index != 0 else threshold[0] - 1e-10
         opt_threshold.append(t)
+
     return np.array(opt_precision), np.array(opt_recall), np.array(opt_threshold)
 
 
@@ -75,6 +79,7 @@ def affer_results(y_true, y_pred):
     cm[tp] = 1
     cm[fn] = 2
     cm[fp] = 3
+
     return tn, tp, fn, fp, cm
 
 
@@ -114,8 +119,8 @@ def plot_pre_rec_curve(y_true, k_dnn_best, diagnosis, y_score_list, scores_list,
         threshold_list = []
         average_precision_list = []
         fig, ax = plt.subplots()
-        lw = 2
         t = ['bo', 'rv', 'gs', 'kd']
+
         for j, y_score in enumerate(y_score_list):
             # Get precision-recall curve
             precision, recall, threshold = precision_recall_curve(y_true[:, k], y_score[:, k])
@@ -140,16 +145,17 @@ def plot_pre_rec_curve(y_true, k_dnn_best, diagnosis, y_score_list, scores_list,
         recall_vec = []
         precision_min = []
         precision_max = []
+
         for r in recall_all:
             p_max = [max(precision[recall == r]) for recall, precision in zip(recall_list, precision_list)]
             p_min = [min(precision[recall == r]) for recall, precision in zip(recall_list, precision_list)]
             recall_vec += [r, r]
             precision_min += [min(p_max), min(p_min)]
             precision_max += [max(p_max), max(p_min)]
+
         ax.plot(recall_vec, precision_min, color='blue', alpha=0.3)
         ax.plot(recall_vec, precision_max, color='blue', alpha=0.3)
-        ax.fill_between(recall_vec, precision_min, precision_max,
-                        facecolor="blue", alpha=0.3)
+        ax.fill_between(recall_vec, precision_min, precision_max, facecolor="blue", alpha=0.3)
 
         # Plot iso-f1 curves
         f_scores = np.linspace(0.1, 0.95, num=15)
@@ -160,13 +166,15 @@ def plot_pre_rec_curve(y_true, k_dnn_best, diagnosis, y_score_list, scores_list,
 
         # Plot values in
         for npred in range(4):
-            ax.plot(scores_list[npred]['Recall'][k], scores_list[npred]['Precision'][k],
+            ax.plot(scores_list[npred]['Recall'][k],
+                    scores_list[npred]['Precision'][k],
                     t[npred], label=predictor_names[npred])
 
         plt.xticks(fontsize=16)
         plt.yticks(fontsize=16)
         ax.set_xlim([0.0, 1.0])
         ax.set_ylim([0.0, 1.02])
+
         if k in [3, 4, 5]:
             ax.set_xlabel('Recall (Sensitivity)', fontsize=17)
         if k in [0, 3]:
@@ -199,13 +207,14 @@ def plot_confusion_matrix(y_true, nclasses, diagnosis, y_neuralnet, y_cardio, y_
     confusion_matrices = confusion_matrices.unstack()
     confusion_matrices = confusion_matrices.unstack()
     confusion_matrices = confusion_matrices['n']
+
     confusion_matrices.to_excel("./outputs/tables/confusion matrices.xlsx", float_format='%.3f')
     confusion_matrices.to_csv("./outputs/tables/confusion matrices.csv", float_format='%.3f')
 
 
 # %% Compute scores and bootstraped version of these scores
-def compute_score_bootstraped(y_true, nclasses, score_fun, percentiles, bootstrap_nsamples,
-                              y_neuralnet, y_cardio, y_emerg, y_student, diagnosis, predictor_names):
+def compute_score_bootstraped(y_true, nclasses, score_fun, percentiles, bootstrap_nsamples, y_neuralnet, y_cardio,
+                              y_emerg, y_student, diagnosis, predictor_names):
     scores_resampled_list = []
     scores_percentiles_list = []
 
@@ -245,13 +254,6 @@ def compute_score_bootstraped(y_true, nclasses, score_fun, percentiles, bootstra
 
         # Append
         scores_percentiles_list.append(scores_percentiles_df)
-
-    # Concatenate dataframes
-    scores_percentiles_all_df = pd.concat(scores_percentiles_list, axis=1, keys=predictor_names)
-
-    # Change multiindex levels
-    scores_percentiles_all_df = scores_percentiles_all_df.reorder_levels([1, 0, 2], axis=1)
-    scores_percentiles_all_df = scores_percentiles_all_df.reindex(level=0, columns=score_fun.keys())
 
     return scores_percentiles_list, scores_resampled_list
 

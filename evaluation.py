@@ -13,6 +13,13 @@ diagnosis = ['1dAVb', 'RBBB', 'LBBB', 'SB', 'AF', 'ST']
 nclasses = len(diagnosis)
 predictor_names = ['DNN', 'cardio.', 'emerg.', 'stud.']
 
+bootstrap_nsamples = 1000
+percentiles = [2.5, 97.5]
+
+# Get threshold that yield the best precision recall using "get_optimal_precision_recall" on validation set
+# (we rounded it up to three decimal cases to make it easier to read...)
+threshold = np.array([0.124, 0.07, 0.05, 0.278, 0.390, 0.174])  # corresponding to 1dAVb, RBBB, LBBB, SB, AF, ST
+
 # %% Read datasets
 # Get two annotators
 y_cardiologist1 = pd.read_csv('./data/annotations/cardiologist1.csv').values
@@ -48,11 +55,8 @@ print(np.array(micro_avg_precision)[index])
 k_dnn_best = index[5]
 y_score_best = y_score_list[k_dnn_best]  # score of the best model (6th model)
 
-# Get threshold that yield the best precision recall using "get_optimal_precision_recall" on validation set
-# (we rounded it up to three decimal cases to make it easier to read...)
 # We consider our model to have predicted the abnormality when its output—a number between 0 and 1—is above a threshold.
 # Note: changing on own dataset
-threshold = np.array([0.124, 0.07, 0.05, 0.278, 0.390, 0.174])  # corresponding to 1dAVb, RBBB, LBBB, SB, AF, ST
 mask = y_score_best > threshold
 
 # Get neural network prediction
@@ -74,9 +78,6 @@ plot_confusion_matrix(y_true=y_true, nclasses=nclasses, diagnosis=diagnosis, y_n
                       y_emerg=y_emerg, y_student=y_student)
 
 # %% Compute scores and bootstraped version of these scores
-bootstrap_nsamples = 1000
-percentiles = [2.5, 97.5]
-
 scores_percentiles_list, scores_resampled_list = compute_score_bootstraped(y_true=y_true,
                                                                            nclasses=nclasses,
                                                                            score_fun=score_fun,
