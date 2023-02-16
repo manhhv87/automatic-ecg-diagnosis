@@ -3,8 +3,8 @@ import pandas as pd
 import numpy as np
 from sklearn.metrics import (precision_score, recall_score, f1_score, average_precision_score)
 from utils import (specificity_score, generate_table, plot_pre_rec_curve, plot_confusion_matrix,
-                   compute_score_bootstraped, plot_box, McNemar_score, kappa_score_classifier,
-                   kappa_score_dataset_generation, compute_score_bootstraped_splits, plot_box_splits)
+                   compute_score_bootstraped, plot_box, McNemar_score, kappa_score_dnn_cardio_emerg_stud,
+                   kappa_score_cert_card, compute_score_bootstraped_splits, plot_box_splits)
 
 # %% Constants
 score_fun = {'Precision': precision_score, 'Recall': recall_score,
@@ -99,13 +99,13 @@ McNemar_score(y_true=y_true, y_neuralnet=y_neuralnet, y_cardio=y_cardio,
               y_emerg=y_emerg, y_student=y_student, diagnosis=diagnosis)
 
 # %% Kappa score classifiers (Supplementary Table 2(a))
-kappa_score_classifier(names=["DNN", "cardio.", "emerg.", "stud."],
-                       predictors=[y_neuralnet, y_cardio, y_emerg, y_student],
-                       diagnosis=diagnosis)
+kappa_score_dnn_cardio_emerg_stud(names=["DNN", "cardio.", "emerg.", "stud."],
+                                  predictors=[y_neuralnet, y_cardio, y_emerg, y_student],
+                                  diagnosis=diagnosis)
 
 # %% Kappa score dataset generation (Supplementary Table 2(b))
-kappa_score_dataset_generation(y_neuralnet=y_neuralnet, y_cardiologist1=y_cardiologist1,
-                               y_cardiologist2=y_cardiologist2, diagnosis=diagnosis)
+kappa_score_cert_card(y_neuralnet=y_neuralnet, y_cardiologist1=y_cardiologist1,
+                      y_cardiologist2=y_cardiologist2, diagnosis=diagnosis)
 
 # %% Compute scores and bootstraped version of these scores on alternative splits
 scores_resampled_list = compute_score_bootstraped_splits(y_true=y_true, y_score_best=y_score_best,

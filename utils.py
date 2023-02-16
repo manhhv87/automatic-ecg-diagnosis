@@ -327,7 +327,7 @@ def McNemar_score(y_true, y_neuralnet, y_cardio, y_emerg, y_student, diagnosis):
 
 
 # %% Kappa score classifiers (Supplementary Table 2(a))
-def kappa_score_classifier(names, predictors, diagnosis):
+def kappa_score_dnn_cardio_emerg_stud(names, predictors, diagnosis):
     kappa_name = []
     kappa_score = np.empty((6, 6))
     k = 0
@@ -371,7 +371,7 @@ def kappa_score_classifier(names, predictors, diagnosis):
 
 
 # %% Kappa score dataset generation (Supplementary Table 2(b))
-def kappa_score_dataset_generation(y_neuralnet, y_cardiologist1, y_cardiologist2, diagnosis):
+def kappa_score_cert_card(y_neuralnet, y_cardiologist1, y_cardiologist2, diagnosis):
     # Compute kappa score
     kappa_list = []
     names_list = []
