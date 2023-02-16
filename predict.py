@@ -5,7 +5,7 @@ import tensorflow as tf
 
 warnings.filterwarnings("ignore")
 from datasets import ECGSequence
-from densenet1d import _DenseBlock, _TransitionBlock
+from modules.model import _DenseBlock, _TransitionBlock
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Get performance on test set from hdf5')

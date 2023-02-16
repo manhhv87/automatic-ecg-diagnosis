@@ -2,7 +2,7 @@ import argparse
 import tensorflow as tf
 
 from datasets import ECGSequence
-from utils import ecg_feature_extractor
+from modules.utils import ecg_feature_extractor
 # from densenet1d import _DenseBlock, _TransitionBlock
 
 # from clr.learningratefinder import LearningRateFinder
