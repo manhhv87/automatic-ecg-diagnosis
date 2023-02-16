@@ -246,7 +246,14 @@ def compute_score_bootstraped(y_true, nclasses, score_fun, percentiles, bootstra
         # Append
         scores_percentiles_list.append(scores_percentiles_df)
 
-        return scores_percentiles_list, scores_resampled_list
+        # Concatenate dataframes
+        scores_percentiles_all_df = pd.concat(scores_percentiles_list, axis=1, keys=predictor_names)
+
+        # Change multiindex levels
+        scores_percentiles_all_df = scores_percentiles_all_df.reorder_levels([1, 0, 2], axis=1)
+        scores_percentiles_all_df = scores_percentiles_all_df.reindex(level=0, columns=score_fun.keys())
+
+    return scores_percentiles_list, scores_resampled_list
 
 
 # %% Print box plot (Supplementary Figure 1)

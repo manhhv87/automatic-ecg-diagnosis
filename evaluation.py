@@ -82,13 +82,6 @@ scores_percentiles_list, scores_resampled_list = compute_score_bootstraped(y_tru
                                                                            y_student=y_student,
                                                                            diagnosis=diagnosis)
 
-# Concatenate dataframes
-scores_percentiles_all_df = pd.concat(scores_percentiles_list, axis=1, keys=predictor_names)
-
-# Change multiindex levels
-scores_percentiles_all_df = scores_percentiles_all_df.reorder_levels([1, 0, 2], axis=1)
-scores_percentiles_all_df = scores_percentiles_all_df.reindex(level=0, columns=score_fun.keys())
-
 # %% Print box plot (Supplementary Figure 1)
 plot_box(scores_resampled_list=scores_resampled_list, predictor_names=predictor_names,
          bootstrap_nsamples=bootstrap_nsamples, score_fun=score_fun)
