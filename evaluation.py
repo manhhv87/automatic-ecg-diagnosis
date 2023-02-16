@@ -30,29 +30,35 @@ y_true = pd.read_csv('./data/annotations/gold_standard.csv').values
 y_score_list = [np.load('./dnn_predicts/other_seeds/model_' + str(i + 1) + '.npy') for i in range(10)]
 
 # %% Get average model
-# Get micro average precision
+# Get micro average precision (return micro average precision (mAP) between 0.946 and 0.961; we choose the one
+# with mAP immediately above the median value of all executions (the one with mAP = 0.951))
 micro_avg_precision = [average_precision_score(y_true[:, :6], y_score[:, :6], average='micro')
                        for y_score in y_score_list]
 
 # get ordered index
-index = np.argsort(micro_avg_precision)
+# These realizations have micro average precision (mAP) between 0.946 and 0.961
+index = np.argsort(micro_avg_precision)  # sorting the data in ascending order and return data's index in array
 print('Micro average precision')
 print(np.array(micro_avg_precision)[index])
 
 # get 6th best model (immediately above median) out 10 different models
+# we choose the one with mAP immediately above the median value of all executions (the one with mAP = 0.951)
+# (We could not choose the model with mAP equal to the median value because 10 is an even number;
+# hence, there is no single middle value.)
 k_dnn_best = index[5]
-y_score_best = y_score_list[k_dnn_best]
+y_score_best = y_score_list[k_dnn_best]  # score of the best model (6th model)
 
 # Get threshold that yield the best precision recall using "get_optimal_precision_recall" on validation set
 # (we rounded it up to three decimal cases to make it easier to read...)
-threshold = np.array([0.124, 0.07, 0.05, 0.278, 0.390, 0.174])
+# We consider our model to have predicted the abnormality when its output—a number between 0 and 1—is above a threshold.
+# Note: changing on own dataset
+threshold = np.array([0.124, 0.07, 0.05, 0.278, 0.390, 0.174])  # corresponding to 1dAVb, RBBB, LBBB, SB, AF, ST
 mask = y_score_best > threshold
 
 # Get neural network prediction
 # This data was also saved in './data/annotations/dnn.csv'
-y_neuralnet = np.zeros_like(y_score_best)
-y_neuralnet[mask] = 1
-y_neuralnet[mask] = 1
+y_neuralnet = np.zeros_like(y_score_best)  # return an array of zeros with the same shape and type as a given array.
+y_neuralnet[mask] = 1   # return an array with 1 value if each of mask's element is true
 
 # %% Generate table with scores for the average model (Table 2)
 scores_list = generate_table(y_true=y_true, score_fun=score_fun, diagnosis=diagnosis, y_neuralnet=y_neuralnet,
