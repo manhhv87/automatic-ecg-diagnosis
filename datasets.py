@@ -27,7 +27,7 @@ class ECGSequence(tf.keras.utils.Sequence):
         n_train = math.ceil(n_samples * (1 - val_split))  # Round a number upward to its nearest integer
         train_seq = cls(path_to_hdf5, hdf5_dset, path_to_csv, batch_size, end_idx=n_train)
         valid_seq = cls(path_to_hdf5, hdf5_dset, path_to_csv, batch_size, start_idx=n_train)
-        return train_seq, valid_seq
+        return train_seq, valid_seq, n_train
 
     # The __init__ function is run once when instantiating the Dataset object.
     def __init__(self, path_to_hdf5, hdf5_dset, path_to_csv=None, batch_size=8, start_idx=0, end_idx=None):
