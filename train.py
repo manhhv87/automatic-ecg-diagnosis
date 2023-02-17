@@ -48,6 +48,7 @@ if __name__ == "__main__":
     x = tf.keras.layers.GlobalMaxPooling1D()(backbone_model.output)
     x = tf.keras.layers.Dense(units=train_seq.n_classes, activation='sigmoid', kernel_initializer='VarianceScaling')(x)
     model = tf.keras.models.Model(inputs=backbone_model.input, outputs=x)
+
     model.compile(loss='binary_crossentropy', optimizer=tf.keras.optimizers.Adam(args.lr))
 
     # Optimization settings
