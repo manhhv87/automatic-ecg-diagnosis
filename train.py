@@ -45,10 +45,16 @@ if __name__ == "__main__":
 
     inputs = tf.keras.layers.Input(shape=train_seq[0][0].shape[1:], dtype=train_seq[0][0].dtype)
     backbone_model = ecg_feature_extractor(input_layer=inputs)
-    x = tf.keras.layers.GlobalMaxPooling1D()(backbone_model.output)
-    x = tf.keras.layers.Dense(units=train_seq.n_classes, activation='sigmoid', kernel_initializer='he_normal')(x)
+    x = tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(units=64, return_sequences=True))(backbone_model.output)
+    x = tf.keras.layers.GlobalMaxPooling1D()(x)
+    x = tf.keras.layers.Dense(units=train_seq.n_classes, activation='sigmoid', kernel_initializer='VarianceScaling')(x)
     model = tf.keras.models.Model(inputs=backbone_model.input, outputs=x)
-    model.compile(loss='binary_crossentropy', optimizer=tf.keras.optimizers.Adam(args.lr))
+
+    model.summary()
+
+    model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=args.lr,
+                                                     beta_1=0.9, beta_2=0.98, epsilon=1e-9),
+                  loss='binary_crossentropy')
 
     # Optimization settings
     cycle_rate = CyclicLR(mode=config.CLR_METHOD,

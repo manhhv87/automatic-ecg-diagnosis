@@ -21,8 +21,6 @@ class ECGSequence(tf.keras.utils.Sequence):
         data = pd.read_csv(path_to_csv, usecols=["1dAVb", "RBBB", "LBBB", "SB", "ST", "AF", "trace_file"])
         data.set_index("trace_file", inplace=True)
         data = data.loc[path_to_hdf5.split("/")[3]].values
-
-        # n_samples = len(pd.read_csv(path_to_csv))
         n_samples = len(data)
         n_train = math.ceil(n_samples * (1 - val_split))  # Round a number upward to its nearest integer
         train_seq = cls(path_to_hdf5, hdf5_dset, path_to_csv, batch_size, end_idx=n_train)
