@@ -3,7 +3,7 @@ import tensorflow as tf
 
 from datasets import ECGSequence
 from modules.utils import ecg_feature_extractor
-# from densenet1d import _DenseBlock, _TransitionBlock
+from modules.model import _DenseBlock, _TransitionBlock
 
 # from clr.learningratefinder import LearningRateFinder
 from clr.clr_callback import CyclicLR
