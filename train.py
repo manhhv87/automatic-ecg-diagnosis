@@ -64,7 +64,7 @@ if __name__ == "__main__":
     # Create log
     callbacks += [tf.keras.callbacks.TensorBoard(log_dir='/content/drive/MyDrive/ECG12Dataset/logs',
                                                  write_graph=False),
-                  tf.keras.callbacks.CSVLogger('training.log',
+                  tf.keras.callbacks.CSVLogger('/content/drive/MyDrive/ECG12Dataset/training.log',
                                                append=False)]  # Change append to true if continuing training
 
     # Save the BEST and LAST model
