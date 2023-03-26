@@ -49,7 +49,7 @@ if __name__ == "__main__":
     x = tf.keras.layers.Dense(units=train_seq.n_classes, activation='sigmoid', kernel_initializer='VarianceScaling')(x)
     model = tf.keras.models.Model(inputs=backbone_model.input, outputs=x)
 
-    model.compile(loss='binary_crossentropy', optimizer=tf.keras.optimizers.Adam(args.lr))
+    model.compile(loss='binary_crossentropy', optimizer=tf.keras.optimizers.Adam(args.lr), metrics=["accuracy"])
 
     # Optimization settings
     cycle_rate = CyclicLR(mode=config.CLR_METHOD,
