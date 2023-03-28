@@ -13,7 +13,7 @@ def ecg_feature_extractor(input_layer=None, stages=None):
                                # first_num_channels=64,
                                growth_rate=8,
                                # growth_rate=32,
-                               kernel_size=(8, 6, 8, 4),
+                               kernel_size=(6, 4, 6, 0),
                                # kernel_size=(3, 3, 3, 3),
                                bottleneck=True,
                                dropout_rate=None,
