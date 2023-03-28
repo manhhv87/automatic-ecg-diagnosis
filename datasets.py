@@ -40,7 +40,7 @@ class ECGSequence(tf.keras.utils.Sequence):
 
         # Get tracings
         self.f = h5py.File(path_to_hdf5, "r")
-        self.x = self.f[hdf5_dset]  # return tracings (ECG data with shape (N, 4096, 12), N is number of exams_id)
+        self.x = self.f[hdf5_dset][0:-1, :, :]  # return tracings (ECG data with shape (N, 4096, 12), N is number of exams_id)
         self.batch_size = batch_size
         if end_idx is None:
             end_idx = len(self.x)
