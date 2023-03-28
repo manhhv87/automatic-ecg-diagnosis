@@ -48,9 +48,11 @@ if __name__ == "__main__":
 
     inputs = tf.keras.layers.Input(shape=train_seq[0][0].shape[1:], dtype=train_seq[0][0].dtype)
     backbone_model = ecg_feature_extractor(input_layer=inputs)
-    x = tf.keras.layers.GlobalMaxPooling1D()(backbone_model.output)
+    x = tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(units=64, return_sequences=True))(backbone_model.output)    
+    x = tf.keras.layers.GlobalMaxPooling1D()(x)     
     x = tf.keras.layers.Dense(units=train_seq.n_classes, activation='sigmoid', kernel_initializer='VarianceScaling')(x)
     model = tf.keras.models.Model(inputs=backbone_model.input, outputs=x)
+    print('[INFO] Model parameters: {:,d}'.format(model.count_params()))
     
     if args.weights_file: 
         print('[INFO] Loading weights from file {} ...'.format(args.weights_file))
