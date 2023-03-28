@@ -41,16 +41,16 @@ if __name__ == "__main__":
 
     # Creating model
     # If you are continuing an interrupted section, uncomment line bellow:
-    # model = tf.keras.models.load_model('/content/drive/MyDrive/ECG12Dataset/backup_model_last.hdf5',
+    # model = tf.keras.models.load_model('/content/drive/MyDrive/ECG12Dataset/best_model/backup_model_best.hdf5',
     #                                    custom_objects={'_DenseBlock': _DenseBlock,
     #                                                    '_TransitionBlock': _TransitionBlock},
     #                                    compile=False)
 
     inputs = tf.keras.layers.Input(shape=train_seq[0][0].shape[1:], dtype=train_seq[0][0].dtype)
     backbone_model = ecg_feature_extractor(input_layer=inputs)
-    x = tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(units=64, return_sequences=True))(backbone_model.output)    
+    x = tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(units=32, return_sequences=True))(backbone_model.output)     
     x = tf.keras.layers.GlobalMaxPooling1D()(x)     
-    x = tf.keras.layers.Dense(units=train_seq.n_classes, activation='sigmoid', kernel_initializer='VarianceScaling')(x)
+    x = tf.keras.layers.Dense(units=train_seq.n_classes, activation='sigmoid', kernel_initializer='he_normal')(x)
     model = tf.keras.models.Model(inputs=backbone_model.input, outputs=x)
     print('[INFO] Model parameters: {:,d}'.format(model.count_params()))
     
@@ -58,7 +58,9 @@ if __name__ == "__main__":
         print('[INFO] Loading weights from file {} ...'.format(args.weights_file))
         model.load_weights(str(args.weights_file)).expect_partial()
 
-    model.compile(loss='binary_crossentropy', optimizer=tf.keras.optimizers.Adam(args.lr), metrics=["accuracy"])
+    model.compile(loss='binary_crossentropy', 
+                  optimizer=tf.keras.optimizers.Adam(args.lr), 
+                  metrics=["accuracy"])
 
     # Optimization settings
     cycle_rate = CyclicLR(mode=config.CLR_METHOD,
@@ -72,14 +74,14 @@ if __name__ == "__main__":
                  cycle_rate]
 
     # Create log
-    callbacks += [tf.keras.callbacks.TensorBoard(log_dir='/content/drive/MyDrive/ECG12Dataset/logs',
+    callbacks += [tf.keras.callbacks.TensorBoard(log_dir='/content/drive/MyDrive/ECG12Dataset/model/logs/logs',
                                                  write_graph=False),
-                  tf.keras.callbacks.CSVLogger('/content/drive/MyDrive/ECG12Dataset/training.log',
+                  tf.keras.callbacks.CSVLogger('/content/drive/MyDrive/ECG12Dataset/model/logs/training.log',
                                                append=False)]  # Change append to true if continuing training
 
     # Save the BEST and LAST model
-    callbacks += [tf.keras.callbacks.ModelCheckpoint('/content/drive/MyDrive/ECG12Dataset/backup_model_last.hdf5'),
-                  tf.keras.callbacks.ModelCheckpoint('/content/drive/MyDrive/ECG12Dataset/backup_model_best.hdf5',
+    callbacks += [tf.keras.callbacks.ModelCheckpoint('/content/drive/MyDrive/ECG12Dataset/last_model/backup_model_last.hdf5'),
+                  tf.keras.callbacks.ModelCheckpoint('/content/drive/MyDrive/ECG12Dataset/best_model/backup_model_best.hdf5',
                                                      save_best_only=True)]
 
     # Train neural network
@@ -88,8 +90,9 @@ if __name__ == "__main__":
                         validation_steps=1,
                         epochs=args.epochs,                        
                         initial_epoch=0,  # If you are continuing a interrupted section change here
-                        callbacks=callbacks,                                                
+                        callbacks=callbacks,     
+                        shuffle=False,                                           
                         verbose=1)
 
     # Save final result
-    model.save("/content/drive/MyDrive/ECG12Dataset/final_model.hdf5")
+    model.save("/content/drive/MyDrive/ECG12Dataset/final_model/final_model.hdf5")
