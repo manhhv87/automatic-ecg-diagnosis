@@ -17,7 +17,9 @@ if __name__ == "__main__":
                         help='path to hdf5 file containing tracings')
     parser.add_argument('--path_to_csv', type=str,
                         help='path to csv file containing annotations')
-    parser.add_argument('--val_split', type=float, default=0.02,
+    parser.add_argument('--weights-file', type=Path,
+                        help='Path to pretrained weights or a checkpoint of the model.')
+    parser.add_argument('--val_split', type=float, default=0.2,
                         help='number between 0 and 1 determining how much of '
                              'the data is to be used for validation. The remaining '
                              'is used for validation')
@@ -48,6 +50,10 @@ if __name__ == "__main__":
     x = tf.keras.layers.GlobalMaxPooling1D()(backbone_model.output)
     x = tf.keras.layers.Dense(units=train_seq.n_classes, activation='sigmoid', kernel_initializer='VarianceScaling')(x)
     model = tf.keras.models.Model(inputs=backbone_model.input, outputs=x)
+    
+    if args.weights_file: 
+        print('[INFO] Loading weights from file {} ...'.format(args.weights_file))
+        model.load_weights(str(args.weights_file)).expect_partial()
 
     model.compile(loss='binary_crossentropy', optimizer=tf.keras.optimizers.Adam(args.lr), metrics=["accuracy"])
 
