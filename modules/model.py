@@ -57,7 +57,6 @@ class _DenseBlock(tf.keras.layers.Layer):
             'kernel_size': self.kernel_size,
             'bottleneck': self.bottleneck,
             'dropout_rate': self.dropout_rate,
-            'listLayers': self.listLayers
         })
         return config
 
