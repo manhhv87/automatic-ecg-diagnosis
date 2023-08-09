@@ -421,7 +421,7 @@ def compute_score_bootstraped_splits(y_true, y_score_best, score_fun, bootstrap_
         # Get data
         yn_true = y_true
         yn_score = np.load(
-            './dnn_predicts/other_splits/model_' + name + '.npy') if not name == 'base_model' else y_score_best
+            './dnn_predicts/other_splits/model_' + name + '.npy')[:-1] if not name == 'base_model' else y_score_best
 
         # Compute threshold
         nclasses = np.shape(yn_true)[1]
