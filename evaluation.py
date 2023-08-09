@@ -22,24 +22,24 @@ threshold = np.array([0.124, 0.07, 0.05, 0.278, 0.390, 0.174])  # corresponding 
 
 # %% Read datasets
 # Get two annotators
-y_cardiologist1 = pd.read_csv('./data/annotations/cardiologist1.csv').values
-y_cardiologist2 = pd.read_csv('./data/annotations/cardiologist2.csv').values
+y_cardiologist1 = pd.read_csv('./data/annotations/cardiologist1.csv').values[:-1]
+y_cardiologist2 = pd.read_csv('./data/annotations/cardiologist2.csv').values[:-1]
 
 # Get residents and students performance
-y_cardio = pd.read_csv('./data/annotations/cardiology_residents.csv').values
-y_emerg = pd.read_csv('./data/annotations/emergency_residents.csv').values
-y_student = pd.read_csv('./data/annotations/medical_students.csv').values
+y_cardio = pd.read_csv('./data/annotations/cardiology_residents.csv').values[:-1]
+y_emerg = pd.read_csv('./data/annotations/emergency_residents.csv').values[:-1]
+y_student = pd.read_csv('./data/annotations/medical_students.csv').values[:-1]
 
-# Get true values
-y_true = pd.read_csv('./data/annotations/gold_standard.csv').values
+# Get true values, ignore last point to have 826 (multiple batch-size)
+y_true = pd.read_csv('./data/annotations/gold_standard.csv').values[:-1]
 
 # get y_score for different models
-y_score_list = [np.load('./dnn_predicts/other_seeds/model_' + str(i + 1) + '.npy') for i in range(10)]
+y_score_list = [np.load('./dnn_predicts/other_seeds/model_' + str(i + 1) + '.npy') for i in range(1)]
 
 # %% Get average model
 # Get micro average precision (return micro average precision (mAP) between 0.946 and 0.961; we choose the one
 # with mAP immediately above the median value of all executions (the one with mAP = 0.951))
-micro_avg_precision = [average_precision_score(y_true[:, :6], y_score[:, :6], average='micro')
+micro_avg_precision = [average_precision_score(y_true[:, :6], y_score[:, :], average='micro')
                        for y_score in y_score_list]
 
 # get ordered index
@@ -52,7 +52,7 @@ print(np.array(micro_avg_precision)[index])
 # we choose the one with mAP immediately above the median value of all executions (the one with mAP = 0.951)
 # (We could not choose the model with mAP equal to the median value because 10 is an even number;
 # hence, there is no single middle value.)
-k_dnn_best = index[5]
+k_dnn_best = index[0]
 y_score_best = y_score_list[k_dnn_best]  # score of the best model (6th model)
 
 # We consider our model to have predicted the abnormality when its output—a number between 0 and 1—is above a threshold.
