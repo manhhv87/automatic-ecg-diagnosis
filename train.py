@@ -59,6 +59,7 @@ if __name__ == "__main__":
     backbone_model = ecg_feature_extractor(input_layer=inputs)
     x = tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(units=32, return_sequences=True))(backbone_model.output)     
     x = tf.keras.layers.GlobalMaxPooling1D()(x)     
+    x = tf.keras.layers.Dense(units=64, kernel_initializer='he_normal')(x)
     x = tf.keras.layers.Dense(units=train_seq.n_classes, activation='sigmoid', kernel_initializer='he_normal')(x)
     model = tf.keras.models.Model(inputs=backbone_model.input, outputs=x)
     print('[INFO] Model parameters: {:,d}'.format(model.count_params()))
@@ -71,22 +72,12 @@ if __name__ == "__main__":
                   optimizer=tf.keras.optimizers.Adam(args.lr), 
                   metrics=["accuracy"])
 
-    # Optimization settings
-    cycle_rate = CyclicLR(mode=config.CLR_METHOD,
-                          base_lr=config.MIN_LR,
-                          max_lr=config.MAX_LR,
-                          step_size=config.STEP_SIZE * train_size // args.batch_size)
-
-    callbacks = [tf.keras.callbacks.EarlyStopping(patience=9,
-                                                  min_delta=0.00001,
-                                                  verbose=1),
-                 cycle_rate]
-
     # Create log
-    callbacks += [tf.keras.callbacks.TensorBoard(log_dir='/content/drive/MyDrive/ECG12Dataset/model/logs/logs',
-                                                 write_graph=False),
-                  tf.keras.callbacks.CSVLogger('/content/drive/MyDrive/ECG12Dataset/model/logs/training.log',
-                                               append=False)]  # Change append to true if continuing training
+    callbacks = [tf.keras.callbacks.EarlyStopping(patience=9, min_delta=0.001, verbose=1), 
+                 tf.keras.callbacks.TensorBoard(log_dir='/content/drive/MyDrive/ECG12Dataset/model/logs/logs',
+                                                write_graph=False),
+                 tf.keras.callbacks.CSVLogger('/content/drive/MyDrive/ECG12Dataset/model/logs/training.log',
+                                              append=False)]  # Change append to true if continuing training
 
     # Save the BEST and LAST model
     callbacks += [tf.keras.callbacks.ModelCheckpoint('/content/drive/MyDrive/ECG12Dataset/last_model/backup_model_last.hdf5'),
